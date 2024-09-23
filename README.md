@@ -1,30 +1,91 @@
 ﻿# Marlin 3D Printer Firmware for AnetA8
  Ready to Flash AnetA8 Firmware open in PlatformIo and Select Sanguino as Board and Flash
- 
- As Display it is select a 128x64 pixel Display with Rorary Encoder for the 5 Button 20 x 4 Row Display please change in the Configuration.h
- 
- at line 1900
-     #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
- to
-     //#define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
 
-at line 1813
+## Display
 
-   //#define ZONESTAR_LCD
-to
-    #define ZONESTAR_LCD
-    
-    
-The Display Language is set to German to change this go to line 1607 and change 
+As Display is selected: ZONESTAR_LCD
+
+ For changing to a 128x64 pixel Display with Rorary Encoder change in the Configuration.h:
+
+ - line 1900  #define REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+ - line 1813 //#define ZONESTAR_LCD
+
+## Temporary Settings - PLEASE CHANEG
+- Temporarily reduced X_BED_SIZE and Y_BED_SIZE to 200 since my probe (sensor) is to far on the right
+- Added Babystepping and set BABYSTEP_MULTIPLICATOR_Z to 10
+
+## Language
+
+The Display Language is set to German to change this go to line 1607 and change
 
 #define LCD_LANGUAGE de
 
-with one of this 
+with one of this
  *   en, an, bg, ca, cz, da, de, el, el_gr, es, eu, fi, fr, gl, hr, it, jp_kana,
  *   ko_KR, nl, pl, pt, pt_br, ru, sk, tr, uk, vi, zh_CN, zh_TW, test
- 
- 
 
+## SD-Card Support
+
+To safe storage space sd-card support was disabled:
+- line 1647: //#define SDSUPPORT
+
+## LEVELING AND Z-ENDSTOP-Probe
+These settings are due to the usage of a inductive proximity sensor as z-endstop
+probe (ROKO SN04-N).
+
+Therefore the 'Probe Type' is set to
+- line 869: #define FIX_MOUNTED_PROBE instead of
+- line 862: #define PROBE_MANUALLY
+
+The sensor offset to the nozzle is set to:
+- line 937: #define NOZZLE_TO_PROBE_OFFSET { 21, 55, -1 }
+
+The auto bed leveling stategy is set to
+- line 1180: #define AUTO_BED_LEVELING_BILINEAR
+
+"Z Safe Homing" is set to avoid homing with a Z probe outside the bed area:
+-line 1344: #define Z_SAFE_HOMING
+
+In order to disable software endstops for setting the z-offset
+this option is enabled:
+- line 1105: #define SOFT_ENDSTOPS_MENU_ITEM
+
+[1188] #define RESTORE_LEVELING_AFTER_G28
+Normalerweise wird das Bed Leveling nach G28 Auto Home ausgeschaltet. Man muss deshalb im Slicer M501 (Load all saved settings from EEPROM) und M420 S1 (Bed Leveling State: Enable) in den Start-GCode jeder Druckdatei eintragen um es vor jedem Druck wieder zu aktivieren.
+(Ungetestet:) Bed Leveling ist nach jedem Einschalten des Druckers standardmäßig deaktiviert. Falls das nur am Auto Home beim Start liegt würde dieser Eintrag helfen.
+
+Optional: [1372] #define GRID_MAX_POINTS_X 3
+Anzahl der Messpunkte für die x-Achse. Ich würde 5 vorschlagen. In der Zeile darunter wird der gleiche Wert für die y-Achse gesetzt.
+
+Optional: [1372] #define GRID_MAX_POINTS_X 3
+Anzahl der Messpunkte für die x-Achse. Ich würde 5 vorschlagen. In der Zeile darunter wird der gleiche Wert für die y-Achse gesetzt.
+
+Optional: [1441] #define LEVEL_BED_CORNERS
+Schaltet einen zusätzlichen Menüpunkt frei, mit dem nacheinander die Ecken des Druckbettes angefahren werden können, um das Druckbett vor dem Bed Leveling einfacher von Hand einstellen zu können.
+
+Since my printer constantly triggered a thermal runaway protection stop,
+ I increased the THERMAL_PROTECTION_HYSTERESIS to 20 deg Celsius in [..]_adv.h:
+- line 141: #define THERMAL_PROTECTION_HYSTERESIS 20
+
+## Hilfreiche Link
+
+- [Autolevel for the A8 Anet 3D Printer](https://3dprint.wiki/reprap/anet/a8/improvement/autobedleveling)
+
+## Weitere Anmerkungen
+
+Nach dem Flashen der Firmware wie üblich einen Reset durchführen und alte Werte im EEPROM löschen.
+
+Im Slicer unter Start-GCode für jede Druckdatei eintragen:
+M501 // Load all saved settings from EEPROM
+M420 S1 // Bed Leveling State: Enable
+
+Eine genaue Anleitung zum Bed Leveling per Kommandozeile oder Druckermenü gibt es hier (Unter Manual Probing, Click for Details). Dabei ist es nicht so wichtig wie dick das Papier ist oder wie hoch die Kraft - solange es an allen Punkte gleich ist.
+
+Nach dem Bed Leveling nicht vergessen die Messdaten im EEPROM zu speichern (Menüpunkt oder M500)
+
+Anschliessend muss man einmal die Höhe der Düse über dem Druckbett während der ersten Schicht einstellen (z-Offset, der Vorgang wird First Layer Calibration genannt). Dafür gibt es einen Menüpunkt mit dem man beim laufenden Druck die Höhe verändern kann (z-Babystepping). Das erfordert etwas Übung, es ist aber sehr wichtig das gut zu machen. Der gedruckte Strang darf nicht zu platt und nicht zu rund sein, sonst gibt es trotzdem Haftungsprobleme.
+
+## Links
 
 [![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=2.0.x)](https://travis-ci.org/MarlinFirmware/Marlin)
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
